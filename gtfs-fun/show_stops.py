@@ -27,8 +27,9 @@ print(f"Found active routes:")
 print(gtfs.routes)
 print(f"Found active stops:")
 print(gtfs.stops)
-
-# rids = zip(gtfs.routes.loc["route_id"], gtfs.routes.loc["route_short_name"])
-# for rid, rname in rids:
-#     print(f"\nRoute {rid} ({rname}):")
-    # print(gtfs.)
+select_route = 0
+select_trip = 11
+route_id = gtfs.routes["route_id"].iloc[select_route]
+trip_id = gtfs.trips[gtfs.trips["route_id"] == route_id]["trip_id"].iloc[select_trip]
+print(f"Selecting route '{route_id}' trip '{trip_id}' - stop times:")
+print(gtfs.stop_times[gtfs.stop_times["trip_id"] == trip_id])
