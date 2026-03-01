@@ -1,13 +1,25 @@
 # contextual-arrival
 
+Command line apps to render next arrival data from OneBusAway data streams of supporting transit agencies.
 
 
 
 
+## Running
 
+```
+usage: app.py [-h] [--config-path CONFIG_PATH] [--test-data] [--fetch]
 
+Render OneBusAway data
 
+options:
+  -h, --help            show this help message and exit
+  --config-path, -c CONFIG_PATH
+  --test-data
+  --fetch
+```
 
+There is currently only 1 screen that runs automatically. More screens may be added in the future.
 
 ## Usage with venv
 
@@ -23,6 +35,18 @@ source .venv/bin/activate
 ```
 
 `deactivate` to deactivate in shell.
+
+## Configuration
+
+Add a `config.py` file with known variables for configuration, for example:
+```
+OBA_API_KEY = "TEST"
+STOP_IDS = [
+    "40_1108", # 1 Line S - Westlake
+    "40_1121", # 1 Line N - Westlake
+    "1_700", # Buses 4th Ave & Pike St
+]
+```
 
 ## GTFS
 

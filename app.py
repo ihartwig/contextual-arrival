@@ -1,10 +1,12 @@
 import argparse
 import importlib.util
+import json
 import requests
 import sys
 import time
 from datetime import datetime, date
 from pathlib import Path
+from stop_display_curses import StopDisplayCurses
 
 
 OBA_API_KEY = "TEST"
@@ -39,7 +41,7 @@ def check_test_data(stop_ids):
 
 def fetch_test_data(stop_ids, repeat = False):
     """"Request current arrivals and departures info for each stop_id and save to TEST_DATA_DIR"""
-    while True:
+    while repeat:
         for stop_id in STOP_IDS:
             url = f"{OBA_API_ARR_DEPT_FOR_STOP_BASE}/{stop_id}.json?key={OBA_API_KEY}"
             test_filename = f"{TEST_DATA_DIR}/{stop_id}.json"
@@ -53,8 +55,29 @@ def fetch_test_data(stop_ids, repeat = False):
             time.sleep(OBA_API_WAIT_SEC)
 
 
+def fetch_stop_times(stop_id, test_data = False):
+    data = {}
+    if test_data:
+        test_filename = f"{TEST_DATA_DIR}/{stop_id}.json"
+        with open(test_filename, 'rb') as f:
+            r = f.read()
+            r_text = r.decode("utf-8")
+            return json.loads(r_text)
+    else:
+        url = f"{OBA_API_ARR_DEPT_FOR_STOP_BASE}/{stop_id}.json?key={OBA_API_KEY}"
+        print(f"Requesting '{url}'...")
+        r = requests.get(url)
+        r_text = r.content.decode("utf-8")
+    data = json.loads(r_text)
+    if "code" not in data.keys() or data["code"] != 200:
+        p_text = r_text[0:80] + "..." if len(r_text) > 80 else ""
+        print(f"Response invalid: {p_text}")
+        return {}
+    return data
+
+
 def main():
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='Render OneBusAway data')
     parser.add_argument('--config-path', '-c', default="config.py")
     parser.add_argument('--test-data', action='store_true')
     parser.add_argument('--fetch', action='store_true')
@@ -83,7 +106,14 @@ def main():
     if args.test_data and not check_test_data(STOP_IDS):
         fetch_test_data(STOP_IDS)
 
-    print("done")
+    # start screens
+    sdc = StopDisplayCurses(STOP_IDS)
+    while True:
+        for stop_id in STOP_IDS:
+            sdc.update_stop_info(
+                fetch_stop_times(stop_id, test_data=args.test_data)
+            )
+            time.sleep(OBA_API_WAIT_SEC)
 
 
 if __name__ == "__main__":
