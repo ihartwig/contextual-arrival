@@ -45,13 +45,13 @@ def fetch_test_data(stop_ids, repeat = False):
         for stop_id in STOP_IDS:
             url = f"{OBA_API_ARR_DEPT_FOR_STOP_BASE}/{stop_id}.json?key={OBA_API_KEY}"
             test_filename = f"{TEST_DATA_DIR}/{stop_id}.json"
-            print(f"Requesting '{url}'...")
+            # print(f"Requesting '{url}'...")
             r = requests.get(url)
             with open(test_filename, 'wb') as f:
                 f.write(r.content)
             r_text = r.content.decode("utf-8")
             r_text = r_text[0:80] + "..." if len(r_text) > 80 else ""
-            print(f"{r_text}")
+            # print(f"{r_text}")
             time.sleep(OBA_API_WAIT_SEC)
 
 
@@ -65,7 +65,7 @@ def fetch_stop_times(stop_id, test_data = False):
             return json.loads(r_text)
     else:
         url = f"{OBA_API_ARR_DEPT_FOR_STOP_BASE}/{stop_id}.json?key={OBA_API_KEY}"
-        print(f"Requesting '{url}'...")
+        # print(f"Requesting '{url}'...")
         r = requests.get(url)
         r_text = r.content.decode("utf-8")
     data = json.loads(r_text)
@@ -111,6 +111,7 @@ def main():
     while True:
         for stop_id in STOP_IDS:
             sdc.update_stop_info(
+                stop_id,
                 fetch_stop_times(stop_id, test_data=args.test_data)
             )
             time.sleep(OBA_API_WAIT_SEC)
